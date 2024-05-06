@@ -1,0 +1,54 @@
+"""
+At the command line, only need to run once to install the package via pip:
+
+$ pip install google-generativeai
+"""
+
+import google.generativeai as genai
+
+genai.configure(api_key="YOUR_API_KEY")
+
+# Set up the model
+generation_config = {
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 0,
+  "max_output_tokens": 8192,
+}
+
+safety_settings = [
+  {
+    "category": "HARM_CATEGORY_HARASSMENT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+  {
+    "category": "HARM_CATEGORY_HATE_SPEECH",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+  {
+    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+  {
+    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+  },
+]
+
+model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
+                              generation_config=generation_config,
+                              safety_settings=safety_settings)
+
+convo = model.start_chat(history=[
+  {
+    "role": "user",
+    "parts": ["Crie um prompt para Executar no cmd para limpar arquivos da pasta Downloads com mais 45 dias e limpar também arquivos temporários do sistema. De maneira que seja possível gerar um executável."]
+  },
+  {
+    "role": "model",
+    "parts": ["## Prompt para limpar arquivos antigos e temporários\n\nEste script em lote irá deletar arquivos com mais de 45 dias na pasta Downloads e também limpar arquivos temporários do sistema.\n\n**1. Criando o arquivo .bat:**\n\n*   Abra um editor de texto como o Bloco de Notas.\n*   Cole o seguinte código:\n\n```batch\n@echo off\nREM Limpando arquivos da pasta Downloads com mais de 45 dias\nforfiles /p \"%USERPROFILE%\\Downloads\" /s /m *.* /d -45 /c \"cmd /c del @path\"\n\nREM Limpando arquivos temporários do sistema\ndel /q /f /s %TEMP%\\*\n```\n\n*   Salve o arquivo com a extensão .bat, por exemplo, \"limpar_arquivos.bat\".\n\n**2. Executando o script:**\n\n*   Dê um duplo clique no arquivo \"limpar_arquivos.bat\".\n*   Uma janela do prompt de comando será aberta e o script será executado. \n\n**3. Gerando um executável (opcional):**\n\nPara criar um executável, você precisará de um software de terceiros como o Bat To Exe Converter. \n\n*   Baixe e instale um conversor de .bat para .exe.\n*   Abra o conversor e selecione o arquivo \"limpar_arquivos.bat\".\n*   Configure as opções desejadas, como ícone e nome do arquivo.\n*   Clique em \"Converter\" para gerar o arquivo executável. \n\n**Observações:**\n\n*   Este script irá deletar permanentemente os arquivos. Certifique-se de que você não precisa mais dos arquivos antes de executar o script.\n*   Você pode modificar o número de dias no comando `forfiles` para alterar o critério de idade dos arquivos. \n*   Existem outros métodos para limpar arquivos temporários do sistema, como a ferramenta Limpeza de Disco do Windows.\n\n**Comandos utilizados:**\n\n*   `forfiles`: seleciona arquivos com base em atributos como data de modificação.\n*   `del`: deleta arquivos.\n*   `%USERPROFILE%`: variável de ambiente que contém o caminho para a pasta do usuário.\n*   `%TEMP%`: variável de ambiente que contém o caminho para a pasta de arquivos temporários.\n\n**Espero que este script seja útil!**"]
+  },
+])
+
+convo.send_message("YOUR_USER_INPUT")
+print(convo.last.text)
